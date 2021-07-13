@@ -5,9 +5,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "FastNoiseLite.h"
-#include "stb_perlin.h"
-//#include "PerlinNoise.hpp"
-#define STB_PERLIN_IMPLEMENTATION
+
 
 class Terrain
 {
@@ -27,16 +25,10 @@ private:
 	GLuint Vao;
 	GLuint Vbo;
 	FastNoiseLite noise1;
-	FastNoiseLite noise2;
 	float GenerateHeight(float x, float z);
-	float Distance = 0.1f;
+	float Distance = 0.2f;
 	float MaxHeight=0.f;
 	void CalculateAverageNormals();
 	void CalcMaxHeight();
-	float Seed = 1337;
-	bool IsChanged = true;
-	int PtCt=0;
-	int NCt = 0;
-	//siv::PerlinNoise perlinA;
 };
 

@@ -4,14 +4,12 @@
 Terrain::Terrain():TerrainWidth{100.f},TerrainLength{100.f},Vao{0},Vbo{0}
 {
 	noise1.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-	//noise1.SetFractalType(FastNoiseLite::FractalType_Ridged);
 	noise1.SetFractalType(FastNoiseLite::FractalType_DomainWarpProgressive);
 }
 
 Terrain::Terrain(GLfloat Width, GLfloat Length) : TerrainWidth{Width}, TerrainLength{ Length }, Vao{ 0 }, Vbo{ 0 }
 {
 	noise1.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
-	//noise1.SetFractalType(FastNoiseLite::FractalType_Ridged);
 	noise1.SetFractalType(FastNoiseLite::FractalType_FBm);
 }
 
@@ -22,14 +20,11 @@ Terrain::~Terrain()
 }
 
 
-
+//TODO:Remove redundant points and find a way to generate Index buffer objects to increase performance 
 void Terrain::GenerateTerrain()
 {
-	if (IsChanged == false)
-		return;
 	if (TerrainPoints.size() > 0)
 		TerrainPoints.clear();
-	IsChanged = false;
 	for (float x = 0; x < TerrainWidth; x=x+Distance)
 	{
 		for (float z = 0; z < TerrainLength; z+=Distance)
@@ -40,28 +35,27 @@ void Terrain::GenerateTerrain()
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
-				PtCt++;
+	
 				TerrainPoints.push_back(x);
 				TerrainPoints.push_back(GenerateHeight(x, z));
 				TerrainPoints.push_back(z);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
-				PtCt++;
+
 				TerrainPoints.push_back(x + Distance);
 				TerrainPoints.push_back(GenerateHeight(x+Distance,z));
 				TerrainPoints.push_back(z);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
-				PtCt++;
+
 				TerrainPoints.push_back(x);
 				TerrainPoints.push_back(GenerateHeight(x, z + Distance));
 				TerrainPoints.push_back(z + Distance);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
-				PtCt++;
 
 				TerrainPoints.push_back(x + Distance);
 				TerrainPoints.push_back(GenerateHeight(x + Distance, z));
@@ -69,7 +63,6 @@ void Terrain::GenerateTerrain()
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
-				PtCt++;
 
 				TerrainPoints.push_back(x+Distance);
 				TerrainPoints.push_back(GenerateHeight(x+Distance, z+Distance));
@@ -77,7 +70,7 @@ void Terrain::GenerateTerrain()
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
 				TerrainPoints.push_back(0.f);
-				PtCt++;
+
 		}
 	}
 
@@ -101,10 +94,6 @@ void Terrain::GenerateTerrain()
 	glEnableVertexAttribArray(0);
 
 	//Set texture data
-	//Texture only needs UV data to wrap the image around the mesh so 2cd param is 2
-	//first UV value
-	//We set the texture info in index 1 of the attribute array
-	//Since we need the 4th and 5th points in a index of vertices the 5th param offset is Vectrices[0]*3
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(sizeof(float)*3));
 	glEnableVertexAttribArray(1);
 	//Unlinks Vbo from OpenGL state machine
@@ -132,8 +121,8 @@ float Terrain::GetMaxHeight()
 
 void Terrain::SetSeed(int S)
 {
-	Seed = S;
-	IsChanged = true;
+	//TODO: Implement seed input from user
+	std::cout << "foo\n";
 }
 
 float Terrain::GenerateHeight(float x, float z)
@@ -141,7 +130,6 @@ float Terrain::GenerateHeight(float x, float z)
 	float TotalNoise = 0.f;
 	float BaseFrequency = 0.01f;
 	float Effect = 0.24;
-	int TempSeed = Seed;
 	float Temp = 10.f;
 
 	noise1.SetSeed(0);
@@ -160,9 +148,6 @@ float Terrain::GenerateHeight(float x, float z)
 	
 	TotalNoise=10.f*TotalNoise;
 	
-	
-	// std::cout << "Final "<< TotalNoise << std::endl;
-	 //std::cout << "" << std::endl;
 	if (TotalNoise < 1.f)
 		return 0;
 	return TotalNoise;
@@ -171,10 +156,8 @@ float Terrain::GenerateHeight(float x, float z)
 
 void Terrain::CalculateAverageNormals()
 {
-	//std::cout << "size of terrainpoints " << TerrainPoints.size() << std::endl;
 	for (size_t i = 0; i < TerrainPoints.size(); i += 18)
 	{
-		//std::cout << i<<std::endl;
 		glm::vec3 p1(TerrainPoints[i], TerrainPoints[i + 1], TerrainPoints[i + 2]);
 		glm::vec3 p2(TerrainPoints[i+6], TerrainPoints[i + 7], TerrainPoints[i + 8]);
 		glm::vec3 p3(TerrainPoints[i + 12], TerrainPoints[i + 13], TerrainPoints[i + 14]);
@@ -188,9 +171,6 @@ void Terrain::CalculateAverageNormals()
 		TerrainPoints[i + 3] = TerrainPoints[i + 9] = TerrainPoints[i + 15] = norm.x;//-norm.x;
 		TerrainPoints[i + 4] = TerrainPoints[i + 10] = TerrainPoints[i + 16] = norm.y;//-norm.y;
 		TerrainPoints[i + 5] = TerrainPoints[i + 11] = TerrainPoints[i + 17] = norm.z;//-norm.z;
-		NCt += 3;
-		//std::cout << "There are" <<PtCt<<" pts and "<<NCt<<" Normals"<< std::endl;
-		
 	}
 
 }

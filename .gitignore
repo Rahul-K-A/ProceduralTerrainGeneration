@@ -1,0 +1,7 @@
+Debug/
+Release/
+.vs/
+MCubes.vcxproj
+MCubes.vcxproj.filters
+MCubes.vcxproj.user
+MCubes.sln
