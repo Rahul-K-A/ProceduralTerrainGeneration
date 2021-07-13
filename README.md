@@ -1,4 +1,4 @@
-This is a simple terrain generator which works by layering Perlin noise heightmaps.
+This is a WIP simple terrain generator which works by layering Perlin noise heightmaps.
 It also features self implemented Phong lighting.
 GLEW,GLFW,and GLM is needed to run this.
 Perlin noise library is [Auburn's FastNoiseLite](https://github.com/Auburn/FastNoiseLite) 
